@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package gibiteca.model;
 
 /**
@@ -56,7 +55,3 @@ public class Titulo {
         // Faz com que o nome do título apareça na lista da GUI.
     }
 }
-=======
-package gibiteca.model;
-
->>>>>>> f2bcc2d (tentando resolver problemas da sub pasta)
