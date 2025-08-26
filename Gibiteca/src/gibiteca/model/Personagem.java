@@ -1,10 +1,14 @@
 package gibiteca.model;
 
+/**
+ * Personagem de um título de HQ.
+ */
 public class Personagem {
-
     private long id;
     private String nome;
     private String primeiraAparicao;
+
+    public Personagem() {}
 
     public Personagem(long id, String nome, String primeiraAparicao) {
         this.id = id;
@@ -34,5 +38,10 @@ public class Personagem {
 
     public void setPrimeiraAparicao(String primeiraAparicao) {
         this.primeiraAparicao = primeiraAparicao;
+    }
+
+    @Override
+    public String toString() {
+        return nome != null ? nome : "";
     }
 }
