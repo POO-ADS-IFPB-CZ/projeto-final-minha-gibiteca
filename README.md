@@ -48,8 +48,6 @@ find Gibiteca/src -name "*.java" -print0 | xargs -0 javac -encoding UTF-8 -d Gib
 # Executar a aplicação com interface gráfica
 java -cp Gibiteca/out gibiteca.Main
 
-# (Opcional) Executar apenas o teste de persistência
-java -cp Gibiteca/out gibiteca.MainTestDAO
 ```
 
 ---
