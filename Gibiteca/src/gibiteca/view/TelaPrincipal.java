@@ -122,8 +122,13 @@ public class TelaPrincipal extends JFrame {
             JOptionPane.showMessageDialog(this, "Selecione um título.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        int resp = JOptionPane.showConfirmDialog(this, "Excluir \"" + selecionado.getNome() + "\""?",
-                "Confirmação", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+int resp = JOptionPane.showConfirmDialog(
+        this,
+        "Excluir \"" + selecionado.getNome() + "\"?",
+        "Confirmação",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.WARNING_MESSAGE
+);
         if (resp == JOptionPane.YES_OPTION) {
             controller.remover(selecionado);
             aplicarFiltro();

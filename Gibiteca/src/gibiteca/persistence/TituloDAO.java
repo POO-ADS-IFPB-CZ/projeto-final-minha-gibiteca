@@ -11,22 +11,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO simples baseado em JSON para persistir títulos.
- * O arquivo é salvo em: {PROJECT_DIR}/data/titulos.json
+ * DAO baseado em JSON salvo em ./data/titulos.json
  */
 public class TituloDAO {
 
     private final Path path;
 
     public TituloDAO() {
-        String projectDir = System.getProperty("user.dir"); // diretório onde a app é executada
+        String projectDir = System.getProperty("user.dir");
         Path dataDir = Paths.get(projectDir, "data");
         this.path = dataDir.resolve("titulos.json");
         try {
             if (!Files.exists(dataDir)) Files.createDirectories(dataDir);
-            if (!Files.exists(path)) {
-                Files.write(path, "[]".getBytes(StandardCharsets.UTF_8));
-            }
+            if (!Files.exists(path)) Files.writeString(path, "[]", StandardCharsets.UTF_8);
         } catch (IOException e) {
             System.err.println("Não foi possível preparar o arquivo de dados: " + e.getMessage());
         }
@@ -37,8 +34,6 @@ public class TituloDAO {
         try {
             String json = Files.readString(path, StandardCharsets.UTF_8).trim();
             if (json.isEmpty()) json = "[]";
-            // parse simples de uma lista de objetos com chaves fixas
-            // formato esperado: [{"id":1,"nome":"...","editora":"...","autor":"..."}, ...]
             if (json.startsWith("[")) {
                 int i = 0, n = json.length();
                 while (i < n) {
@@ -67,7 +62,6 @@ public class TituloDAO {
     }
 
     public void salvar(List<Titulo> titulos) {
-        // Gera IDs sequenciais quando id == 0
         long max = 0;
         for (Titulo t : titulos) if (t.getId() > max) max = t.getId();
         for (Titulo t : titulos) {
@@ -90,44 +84,38 @@ public class TituloDAO {
         }
     }
 
+    // ---------- Helpers JSON ----------
+
     private static String esc(String s) {
         if (s == null) return "";
-        StringBuilder out = new StringBuilder(s.length() + 8);
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            switch (c) {
-                case '\': out.append("\\"); break;
-                case '"':  out.append("\""); break;
-                case '
-': out.append("\n"); break;
-                case '
-': out.append("\r"); break;
-                case '	': out.append("\t"); break;
-                default: out.append(c);
-            }
-        }
-        return out.toString();
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
     private static String toJson(Titulo t) {
-        return "{"id":" + t.getId() +
-               ","nome":"" + esc(t.getNome()) + """ +
-               ","editora":"" + esc(t.getEditora()) + """ +
-               ","autor":"" + esc(t.getAutor()) + ""}";
+        return "{"
+                + "\"id\":" + t.getId()
+                + ",\"nome\":\"" + esc(t.getNome()) + "\""
+                + ",\"editora\":\"" + esc(t.getEditora()) + "\""
+                + ",\"autor\":\"" + esc(t.getAutor()) + "\""
+                + "}";
     }
 
     private static String unesc(String s) {
         StringBuilder out = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (c == '\' && i + 1 < s.length()) {
+            if (c == '\\' && i + 1 < s.length()) {
                 char n = s.charAt(i + 1);
                 switch (n) {
                     case 'n': out.append('\n'); break;
                     case 'r': out.append('\r'); break;
                     case 't': out.append('\t'); break;
-                    case '\': out.append('\'); break;
-                    case '"': out.append('"'); break;
+                    case '\\': out.append('\\'); break;
+                    case '"': out.append('\"'); break;
                     default: out.append(n); break;
                 }
                 i++;
@@ -139,19 +127,20 @@ public class TituloDAO {
     }
 
     private static String getJsonString(String obj, String key) {
-        String pat = """ + key + "":";
+        String pat = "\"" + key + "\":";
         int idx = obj.indexOf(pat);
         if (idx < 0) return null;
         idx += pat.length();
-        // pular espaços
         while (idx < obj.length() && Character.isWhitespace(obj.charAt(idx))) idx++;
         if (idx >= obj.length()) return null;
-        if (obj.charAt(idx) == '"') {
+
+        if (obj.charAt(idx) == '\"') {
+            // valor string
             int j = idx + 1;
             StringBuilder val = new StringBuilder();
             while (j < obj.length()) {
                 char c = obj.charAt(j);
-                if (c == '\') {
+                if (c == '\\') {
                     if (j + 1 < obj.length()) {
                         val.append(c);
                         j++;
@@ -159,7 +148,7 @@ public class TituloDAO {
                         j++;
                         continue;
                     }
-                } else if (c == '"') {
+                } else if (c == '\"') {
                     break;
                 }
                 val.append(c);
@@ -167,9 +156,9 @@ public class TituloDAO {
             }
             return unesc(val.toString());
         } else {
-            // número
+            // valor numérico simples
             int j = idx;
-            while (j < obj.length() && "0123456789".indexOf(obj.charAt(j)) >= 0) j++;
+            while (j < obj.length() && Character.isDigit(obj.charAt(j))) j++;
             return obj.substring(idx, j);
         }
     }
@@ -182,10 +171,10 @@ public class TituloDAO {
             String autor = getJsonString(obj, "autor");
             long id = 0;
             if (sid != null && !sid.isBlank()) id = Long.parseLong(sid);
-            Titulo t = new Titulo(id, nome, editora, autor);
-            return t;
+            return new Titulo(id, nome, editora, autor);
         } catch (Exception e) {
             return null;
         }
     }
 }
+
