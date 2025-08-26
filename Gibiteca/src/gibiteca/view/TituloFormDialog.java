@@ -5,81 +5,90 @@ import gibiteca.model.Titulo;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 public class TituloFormDialog extends JDialog {
 
-    private Titulo titulo;
+    private JTextField txtNome;
+    private JTextField txtEditora;
+    private JTextField txtAutor;
     private boolean confirmado = false;
+    private Titulo titulo;
 
-    private final JTextField txtNome;
-    private final JTextField txtEditora;
-    private final JTextField txtAutor;
-
-    public TituloFormDialog(Frame owner, String tituloJanela, Titulo tituloExistente) {
-        super(owner, tituloJanela, true);
-
-        txtNome = new JTextField(20);
-        txtEditora = new JTextField(20);
-        txtAutor = new JTextField(20);
-
-        if (tituloExistente != null) {
-            txtNome.setText(tituloExistente.getNome());
-            txtEditora.setText(tituloExistente.getEditora());
-            txtAutor.setText(tituloExistente.getAutor());
-            this.titulo = tituloExistente;
+    public TituloFormDialog(Window owner, Titulo existente) {
+        super(owner, "Cadastro de Título", ModalityType.APPLICATION_MODAL);
+        this.titulo = existente;
+        initUI();
+        if (existente != null) {
+            preencherCampos(existente);
         }
+    }
 
+    private void initUI() {
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        setSize(350, 200);
-        setLocationRelativeTo(owner);
+        setSize(380, 220);
+        setLocationRelativeTo(getOwner());
 
-        JPanel panelCampos = new JPanel(new GridLayout(3, 2, 5, 5));
-        panelCampos.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel form = new JPanel(new GridLayout(3, 2, 8, 8));
+        form.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
+        form.add(new JLabel("Nome:"));
+        txtNome = new JTextField();
+        form.add(txtNome);
+        form.add(new JLabel("Editora:"));
+        txtEditora = new JTextField();
+        form.add(txtEditora);
+        form.add(new JLabel("Autor:"));
+        txtAutor = new JTextField();
+        form.add(txtAutor);
 
-        panelCampos.add(new JLabel("Nome:"));
-        panelCampos.add(txtNome);
-        panelCampos.add(new JLabel("Editora:"));
-        panelCampos.add(txtEditora);
-        panelCampos.add(new JLabel("Autor:"));
-        panelCampos.add(txtAutor);
-
-        add(panelCampos, BorderLayout.CENTER);
-
-        JPanel panelBotoes = new JPanel();
-        JButton btnSalvar = new JButton("Salvar");
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCancelar = new JButton("Cancelar");
+        JButton btnSalvar = new JButton("Salvar");
+        botoes.add(btnCancelar);
+        botoes.add(btnSalvar);
 
-        panelBotoes.add(btnSalvar);
-        panelBotoes.add(btnCancelar);
-        add(panelBotoes, BorderLayout.SOUTH);
-
-        btnSalvar.addActionListener(e -> {
-            if (txtNome.getText().trim().isEmpty() ||
-                    txtEditora.getText().trim().isEmpty() ||
-                    txtAutor.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Atenção", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            if (titulo == null) {
-                titulo = new Titulo(System.currentTimeMillis(),
-                        txtNome.getText().trim(),
-                        txtEditora.getText().trim(),
-                        txtAutor.getText().trim());
-            } else {
-                titulo.setNome(txtNome.getText().trim());
-                titulo.setEditora(txtEditora.getText().trim());
-                titulo.setAutor(txtAutor.getText().trim());
-            }
-            confirmado = true;
-            dispose();
-        });
+        add(form, BorderLayout.CENTER);
+        add(botoes, BorderLayout.SOUTH);
 
         btnCancelar.addActionListener(e -> {
-            titulo = null;
+            confirmado = false;
             dispose();
         });
+        btnSalvar.addActionListener(e -> onSalvar());
+
+        // Atalhos
+        getRootPane().setDefaultButton(btnSalvar);
+        getRootPane().registerKeyboardAction(
+                (ActionEvent e) -> dispose(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+    }
+
+    private void preencherCampos(Titulo t) {
+        txtNome.setText(t.getNome());
+        txtEditora.setText(t.getEditora());
+        txtAutor.setText(t.getAutor());
+    }
+
+    private void onSalvar() {
+        if (txtNome.getText().trim().isEmpty() ||
+            txtEditora.getText().trim().isEmpty() ||
+            txtAutor.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha todos os campos.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (titulo == null) titulo = new Titulo();
+        titulo.setNome(txtNome.getText().trim());
+        titulo.setEditora(txtEditora.getText().trim());
+        titulo.setAutor(txtAutor.getText().trim());
+        confirmado = true;
+        dispose();
+    }
+
+    public boolean isConfirmado() {
+        return confirmado;
     }
 
     public Titulo getTitulo() {
