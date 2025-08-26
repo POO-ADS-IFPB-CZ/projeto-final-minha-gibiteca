@@ -1,14 +1,15 @@
 package gibiteca.model;
 
 /**
- * Representa o titulo de uma HQ.
- * EX: "Turma da Mônica".
+ * Representa o título (revista/coleção) de quadrinhos.
  */
 public class Titulo {
     private long id;
     private String nome;
     private String editora;
     private String autor;
+
+    public Titulo() {}
 
     public Titulo(long id, String nome, String editora, String autor) {
         this.id = id;
@@ -50,8 +51,8 @@ public class Titulo {
     }
 
     @Override
-    public String toString(){
-        return nome;
-        // Faz com que o nome do título apareça na lista da GUI.
+    public String toString() {
+        // Mostra o nome na lista da GUI
+        return nome != null ? nome : "";
     }
 }
