@@ -5,50 +5,61 @@ import gibiteca.persistence.TituloDAO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Camada de regras simples entre a View e o DAO.
+ */
 public class TituloController {
-
     private final TituloDAO dao;
-    private final List<Titulo> titulosCache; // Mantém a lista carregada em memória
+    private final List<Titulo> cache;
 
     public TituloController() {
-        dao = new TituloDAO();
-        titulosCache = new ArrayList<>(dao.carregar());
+        this.dao = new TituloDAO();
+        this.cache = new ArrayList<>(dao.carregar());
     }
 
-    // Retorna todos os títulos
     public List<Titulo> listarTodos() {
-        return new ArrayList<>(titulosCache);
+        return new ArrayList<>(cache); // cópia defensiva
     }
 
-    // Cadastrar um novo título
-    public void cadastrar(Titulo titulo) {
-        titulosCache.add(titulo);
-        dao.salvar(titulosCache);
+    public void adicionar(Titulo t) {
+        cache.add(t);
+        dao.salvar(cache);
     }
 
-    // Atualizar um título existente
-    public void atualizar(Titulo titulo) {
-        for (int i = 0; i < titulosCache.size(); i++) {
-            if (titulosCache.get(i).getId() == titulo.getId()) {
-                titulosCache.set(i, titulo);
-                dao.salvar(titulosCache);
+    public void atualizar(Titulo t) {
+        // Atualiza pelo id
+        for (int i = 0; i < cache.size(); i++) {
+            if (cache.get(i).getId() == t.getId()) {
+                cache.set(i, t);
+                dao.salvar(cache);
+                return;
+            }
+        }
+        // se não encontrou pelo id, atualiza pelo nome (fallback)
+        for (int i = 0; i < cache.size(); i++) {
+            if (safeEquals(cache.get(i).getNome(), t.getNome())) {
+                t.setId(cache.get(i).getId());
+                cache.set(i, t);
+                dao.salvar(cache);
                 return;
             }
         }
     }
 
-    // Excluir um título
-    public void excluir(Titulo titulo) {
-        titulosCache.removeIf(t -> t.getId() == titulo.getId());
-        dao.salvar(titulosCache);
+    public void remover(Titulo t) {
+        cache.removeIf(x -> x.getId() == t.getId() ||
+                (x.getId() == 0 && safeEquals(x.getNome(), t.getNome())));
+        dao.salvar(cache);
     }
 
-    // Buscar por ID (opcional, pode ser útil)
-    public Titulo buscarPorId(long id) {
-        return titulosCache.stream()
-                .filter(t -> t.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public Optional<Titulo> buscarPorNome(String nome) {
+        return cache.stream().filter(t -> safeEquals(t.getNome(), nome)).findFirst();
+    }
+
+    private static boolean safeEquals(String a, String b) {
+        if (a == null) return b == null;
+        return a.equals(b);
     }
 }

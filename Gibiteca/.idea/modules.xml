@@ -1,18 +1,8 @@
-<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Gibiteca.iml" filepath="$PROJECT_DIR$/Gibiteca.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Gibiteca.iml" filepath="$PROJECT_DIR$/.idea/Gibiteca.iml" />
     </modules>
   </component>
-=======
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/Gibiteca.iml" filepath="$PROJECT_DIR$/Gibiteca.iml" />
-    </modules>
-  </component>
->>>>>>> f2bcc2d (tentando resolver problemas da sub pasta)
 </project>
