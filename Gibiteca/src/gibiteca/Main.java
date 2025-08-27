@@ -30,5 +30,9 @@ public class Main {
             System.out.println("ID: " + t.getId() + ", Nome: " + t.getNome());
         }
         System.out.println("--- Teste finalizado. ---");
+            // Abrir interface gráfica
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                new gibiteca.view.TelaPrincipal().setVisible(true);
+            });
     }
 }
