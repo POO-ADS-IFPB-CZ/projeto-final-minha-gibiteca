@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Optional;
 
 public class TituloFormDialog extends JDialog {
 
@@ -74,8 +75,8 @@ public class TituloFormDialog extends JDialog {
 
     private void onSalvar() {
         if (txtNome.getText().trim().isEmpty() ||
-            txtEditora.getText().trim().isEmpty() ||
-            txtAutor.getText().trim().isEmpty()) {
+                txtEditora.getText().trim().isEmpty() ||
+                txtAutor.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -93,5 +94,10 @@ public class TituloFormDialog extends JDialog {
 
     public Titulo getTitulo() {
         return confirmado ? titulo : null;
+    }
+
+    // 🔹 Método usado pela TelaPrincipal
+    public Optional<Titulo> getResultado() {
+        return confirmado ? Optional.of(titulo) : Optional.empty();
     }
 }
